@@ -174,16 +174,17 @@ describe('#telerivet-webhook', function() {
 					events[event] = 1;
 					return events;
 				}, {});
-				var message = msg(assertion.number);
+				var mockMessage = msg(assertion.number);
 
 				webhook.on(lastEvent, function(message) {
 					expect(message).to.have.property('id').that.is.a('string');
 					expect(message).to.have.property('message_type', 'sms');
+					expect(message).to.have.property('__id', mockMessage.__id);
 					watcher.assertCount(expectedEvents, true);
 					done();
 				});
 
-				project.sendMessage(message, function(err) {
+				project.sendMessage(mockMessage, function(err) {
 					expect(err).to.not.exist; // jshint ignore:line
 				});
 			});
