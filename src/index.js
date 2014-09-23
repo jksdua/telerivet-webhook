@@ -50,7 +50,7 @@ module.exports = function(opt) {
 	// that `req.body` will be filled in with the form elements
 	app.post('/', function(req, res){
 		var event = req.body.event;
-
+console.log('got request with event: ' + event);
 		if (webhookStringMatch) {
 			var secret = req.body.secret;
 
