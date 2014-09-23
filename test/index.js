@@ -9,7 +9,6 @@ describe('#telerivet-webhook', function() {
 	var chai = require('chai');
 	var uuid = require('uuid');
 	var nigah = require('nigah');
-	var prompt = require('prompt');
 	var expect = chai.expect;
 
 	// test configuration

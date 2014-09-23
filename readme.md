@@ -176,4 +176,45 @@ $ npm install
 $ npm test
 ```
 
+### Sample test output
+
+```bash
+root@localhost:~/jksdua/telerivet-webhook# npm test
+
+> telerivet-webhook@0.0.1 test /root/jksdua/telerivet-webhook
+> mocha --bail --timeout 10000 --reporter spec
+
+Timeout disabled for incoming message tests
+
+
+  #telerivet-webhook
+    #general
+      > should throw an error if webhook secret is missing
+      > should throw an error if auto reply is not a function
+    #incoming message
+      #events
+Please send a simulated incoming message from https://telerivet.com/p/fccbbed0/services. Click on "Test Services"
+Received simulated message. Proceeding with test
+        > should emit an event (10661ms)
+      #auto reply
+Please send a simulated incoming message from https://telerivet.com/p/fccbbed0/services. Click on "Test Services"
+Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification
+        > should send the reply (4959ms)
+    #message status notification
+      > should emit events - telerivet::failed (8170ms)
+      > should emit events - telerivet::sent,telerivet::delivered (8021ms)
+      > should emit events - telerivet::sent,telerivet::not_delivered (8015ms)
+      > should emit events - telerivet::failed_queued,telerivet::sent (8018ms)
+
+
+  8 passing (49s)
+```
+
 *Note:* Credentials for the service are located in `test/config.json` file. Login and modify the webhook service to point to your public facing server.
+
+
+Changelog
+---------
+
+### v0.0.1 (23 Sep 2014)
+- Initial commit
