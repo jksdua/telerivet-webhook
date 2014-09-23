@@ -27,7 +27,8 @@ describe('#telerivet-webhook', function() {
 			status_url: conf.status_url,
 			status_secret: conf.webhook_secret + ':' + id,
 			to_number: number,
-			content: message || Date.now()
+			content: message || Date.now(),
+			message_type: 'sms'
 		};
 	}
 
@@ -112,7 +113,7 @@ describe('#telerivet-webhook', function() {
 
 		describe('#auto reply', function() {
 			var server;
-			var mockMessage = msg('+15005550012', uuid.v4());
+			var mockMessage = msg('+15005550015', uuid.v4());
 			var webhook = SRC({
 				webhookSecret: webhookSecretFn,
 				// sends a reply to a fake number that returns sent
@@ -138,7 +139,7 @@ describe('#telerivet-webhook', function() {
 					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
 
 					/* Telerivet doesn't appear to send message notifications for test phone - ask tester for help */
-					console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of +15005550012 for message: ' + mockMessage.content);
+					/*console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of +15005550012 for message: ' + mockMessage.content);
 					prompt.start();
 					prompt.get({
 						properties: {
@@ -151,15 +152,13 @@ describe('#telerivet-webhook', function() {
 					}, function(err, result) {
 						expect(result.passed).to.equal('y');
 						done();
-					});
+					});*/
 				});
 
-				/*
-				webhook.on('delivered', function(message) {
+				webhook.on('telerivet::delivered', function(message) {
 					expect(message).to.have.property('__id', mockMessage.__id);
 					done();
 				});
-				*/
 			});
 		});
 	});
@@ -181,6 +180,10 @@ describe('#telerivet-webhook', function() {
 			{
 				events: ['telerivet::failed_queued', 'telerivet::sent'],
 				number: '+15005550014'
+			},
+			{
+				events: ['telerivet::failed_queued', 'telerivet::sent'],
+				number: '+15005550015'
 			}
 		];
 
@@ -216,6 +219,7 @@ describe('#telerivet-webhook', function() {
 					return events;
 				}, {});
 				var mockMessage = msg(assertion.number);
+				console.log(mockMessage);
 
 				webhook.on(lastEvent, function(message) {
 					expect(message).to.have.property('id').that.is.a('string');
@@ -227,7 +231,6 @@ describe('#telerivet-webhook', function() {
 
 				project.sendMessage(mockMessage, function(err) {
 					expect(err).to.not.exist; // jshint ignore:line
-					console.log('message sent');
 				});
 			});
 		});

@@ -30,14 +30,21 @@ var webhook = require('telerivet-webhook')({
 
 *Note:* All events are prefixed with `telerivet::` to avoid collisions with internal events.
 
+Additional to the API, *status* of the message is also emitted as an event. So, messages will also emit *sent*, *delivered*, *failed* etc.
+
 ```js
 var EVENT_INCOMING_MESSAGE = 'telerivet::incoming_message';
+var EVENT_MESSAGE_STATUS = 'telerivet::send_status';
 var EVENT_MESSAGE_SENT = 'telerivet::sent';
 
 // parameters and event names are exactly the same as the documentation at https://telerivet.com/api/webhook
 webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
 	console.log(message.id);
 	console.log(message.type);
+});
+
+webhook.on(EVENT_MESSAGE_STATUS, function(message) {
+	console.log(message.status);
 });
 
 webhook.on(EVENT_MESSAGE_SENT, function(message) {

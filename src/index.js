@@ -62,7 +62,10 @@ module.exports = function(opt) {
 
 		// emit the event
 		try {
+			// incoming_message or send_status
 			app.emit(EVENT_PREFIX + event, req.body);
+			// message status event
+			app.emit(EVENT_PREFIX + req.body.status, req.body);
 		} catch(e) {
 			console.error(e);
 		}
