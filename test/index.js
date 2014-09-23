@@ -209,7 +209,7 @@ describe('#telerivet-webhook', function() {
 		});
 
 		ASSERTIONS.forEach(function(assertion) {
-			it('should emit events: ' + assertion.events, function(done) {
+			it('should emit events - ' + assertion.events, function(done) {
 				var lastEvent = assertion.events[assertion.events.length - 1];
 				var expectedEvents = assertion.events.reduce(function(events, event) {
 					events[event] = 1;
