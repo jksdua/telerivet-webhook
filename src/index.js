@@ -21,6 +21,7 @@ function isFunction(fn) {
 }
 
 module.exports = function(opt) {
+	opt = opt || {};
 	var webhookSecret = opt.webhookSecret;
 	var autoReply = opt.autoReply;
 

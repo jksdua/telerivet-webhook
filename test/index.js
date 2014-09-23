@@ -3,7 +3,11 @@
 'use strict';
 
 describe('#telerivet-webhook', function() {
+	var EVENT_INCOMING_MESSAGE = 'incoming_message';
+	var SRC = require(__dirname + '/../src');
+
 	var chai = require('chai');
+	var uuid = require('uuid');
 	var nigah = require('nigah');
 	var expect = chai.expect;
 	var watcher;
@@ -16,12 +20,38 @@ describe('#telerivet-webhook', function() {
 	var project;
 
 	// extend telerivet with webhook and message notifications
-	var webhook = require(__dirname + '/../src')({
-		webhookSecret: conf.webhook_secret
+	var webhook = SRC({
+		// exact same as the readme example
+		webhookSecret: function(req, res, next) {
+			var secret = req.body.secret || '';
+			var event = req.body.event;
+
+			// message status notification
+			if (EVENT_INCOMING_MESSAGE !== event) {
+				var split = secret.split(':');
+				secret = split[0];
+				// add the server identifier on the message for convenience
+				req.body.__id = split[1];
+			}
+
+			// assert secret is correct
+			if (conf.webhook_secret === secret) {
+				next();
+			} else {
+				// send Forbidden
+				res.status(403).end();
+			}
+		}
 	});
+	webhook.listen();
 
 	function msg(number, message) {
+		var id = uuid.v4();
+
 		return {
+			__id: id,
+			status_url: conf.status_url,
+			status_secret: conf.webhook_secret + ':' + id,
 			to_number: number,
 			content: message || 'message'
 		};
@@ -44,10 +74,73 @@ describe('#telerivet-webhook', function() {
 		watcher.restore();
 	});
 
+	describe('#general', function() {
+		it('should throw an error if webhook secret is missing', function() {
+			expect(function() {
+				SRC();
+			}).to.throw(/secret/i);
+		});
+
+		it('should throw an error if auto reply is not a function', function() {
+			expect(function() {
+				SRC({
+					webhookSecret: conf.webhook_secret,
+					autoReply: {}
+				});
+			}).to.throw(/autoreply/i);
+		});
+	});
+
 	// need to think of a way of automating these two tests
+		// currently we need to manually use the "Simulate Incoming Message" feature in the dashboard
 	describe('#incoming message', function() {
-		it.skip('should emit an event');
-		it.skip('should support auto reply');
+		this.timeout(Infinity);
+		console.info('Timeout disabled for incoming message tests');
+
+		it('should emit an event', function(done) {
+			console.info('Please send a simulated incoming message');
+
+			webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
+				console.info('Received simulated message. Proceeding with test');
+				expect(message).to.have.property('id').that.is.a('string');
+				done();
+			});
+		});
+
+		describe('#auto reply', function() {
+			var mockMessage = msg('+15005550015');
+			var webhook = SRC({
+				webhookSecret: conf.webhook_secret,
+				// sends a reply to a fake number that returns sent
+				autoReply: function(req, res) {
+					res.json({
+						messages: [mockMessage]
+					});
+				}
+			});
+
+			// watch for events on the event emitter
+			beforeEach(function() {
+				watcher = nigah(webhook);
+			});
+
+			afterEach(function() {
+				watcher.restore();
+			});
+
+			it('should send the reply', function(done) {
+				console.info('Please send a simulated incoming message');
+
+				webhook.on(EVENT_INCOMING_MESSAGE, function() {
+					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
+				});
+
+				webhook.on('sent', function(message) {
+					expect(message).to.have.property('__id', mockMessage.__id);
+					done();
+				});
+			});
+		});
 	});
 
 	describe('#message status notification', function() {
@@ -81,6 +174,7 @@ describe('#telerivet-webhook', function() {
 					events[event] = 1;
 					return events;
 				}, {});
+				var message = msg(assertion.number);
 
 				webhook.on(lastEvent, function(message) {
 					expect(message).to.have.property('id').that.is.a('string');
@@ -89,10 +183,14 @@ describe('#telerivet-webhook', function() {
 					done();
 				});
 
-				project.sendMessage(msg(assertion.number), function(err) {
+				project.sendMessage(message, function(err) {
 					expect(err).to.not.exist; // jshint ignore:line
 				});
 			});
+		});
+
+		describe('#string webhook secret', function() {
+
 		});
 	});
 });

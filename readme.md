@@ -102,6 +102,8 @@ var webhook = require('telerivet-webhook')({
 		if (EVENT_INCOMING_MESSAGE !== event) {
 			var split = secret.split(':');
 			secret = split[0];
+			// add the server identifier on the message for convenience
+			req.body.__id = split[1];
 		}
 
 		// assert secret is correct
