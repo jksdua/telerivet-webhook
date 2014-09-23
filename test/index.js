@@ -83,7 +83,7 @@ describe('#telerivet-webhook', function() {
 		console.info('Timeout disabled for incoming message tests');
 
 		describe('#events', function() {
-			var server, watcher;
+			var server;
 			// extend telerivet with webhook and message notifications
 			var webhook = SRC({
 				// exact same as the readme example
@@ -98,15 +98,6 @@ describe('#telerivet-webhook', function() {
 				server.close(done);
 			});
 
-			// watch for events on the event emitter
-			beforeEach(function() {
-				watcher = nigah(webhook);
-			});
-
-			afterEach(function() {
-				watcher.restore();
-			});
-
 			it('should emit an event', function(done) {
 				console.info('Please send a simulated incoming message');
 
@@ -119,8 +110,8 @@ describe('#telerivet-webhook', function() {
 		});
 
 		describe('#auto reply', function() {
-			var server, watcher;
-			var mockMessage = msg('+15005550015');
+			var server;
+			var mockMessage = msg('+15005550012');
 			var webhook = SRC({
 				webhookSecret: webhookSecretFn,
 				// sends a reply to a fake number that returns sent
@@ -139,15 +130,6 @@ describe('#telerivet-webhook', function() {
 				server.close(done);
 			});
 
-			// watch for events on the event emitter
-			beforeEach(function() {
-				watcher = nigah(webhook);
-			});
-
-			afterEach(function() {
-				watcher.restore();
-			});
-
 			it('should send the reply', function(done) {
 				console.info('Please send a simulated incoming message');
 
@@ -155,7 +137,7 @@ describe('#telerivet-webhook', function() {
 					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
 				});
 
-				webhook.on('sent', function(message) {
+				webhook.on('delivered', function(message) {
 					expect(message).to.have.property('__id', mockMessage.__id);
 					done();
 				});
@@ -180,10 +162,6 @@ describe('#telerivet-webhook', function() {
 			{
 				events: ['failed_queued', 'sent'],
 				number: '+15005550014'
-			},
-			{
-				events: ['sent'],
-				number: '+15005550015'
 			}
 		];
 
