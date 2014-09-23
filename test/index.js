@@ -27,7 +27,7 @@ describe('#telerivet-webhook', function() {
 			status_url: conf.status_url,
 			status_secret: conf.webhook_secret + ':' + id,
 			to_number: number,
-			content: message || 'message'
+			content: message || Date.now()
 		};
 	}
 
@@ -134,11 +134,11 @@ describe('#telerivet-webhook', function() {
 			it('should send the reply', function(done) {
 				console.info('Please send a simulated incoming message');
 
-				webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
+				webhook.on(EVENT_INCOMING_MESSAGE, function() {
 					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
 
 					/* Telerivet doesn't appear to send message notifications for test phone - ask tester for help */
-					console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of ' + message.to_number + ' for message: ' + mockMessage.content);
+					console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of +15005550012 for message: ' + mockMessage.content);
 					prompt.start();
 					prompt.get({
 						properties: {
@@ -227,12 +227,9 @@ describe('#telerivet-webhook', function() {
 
 				project.sendMessage(mockMessage, function(err) {
 					expect(err).to.not.exist; // jshint ignore:line
+					console.log('message sent');
 				});
 			});
-		});
-
-		describe('#string webhook secret', function() {
-
 		});
 	});
 });
