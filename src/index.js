@@ -1,5 +1,6 @@
 'use strict';
 
+var EVENT_PREFIX = 'telerivet::';
 var CLIENT_VERSION = '1.1.0';
 var EVENT_INCOMING_MESSAGE = 'incoming_message';
 
@@ -61,7 +62,7 @@ module.exports = function(opt) {
 
 		// emit the event
 		try {
-			app.emit(event, req.body);
+			app.emit(EVENT_PREFIX + event, req.body);
 		} catch(e) {
 			console.error(e);
 		}

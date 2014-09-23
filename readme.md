@@ -28,11 +28,19 @@ var webhook = require('telerivet-webhook')({
 
 ### Listen for events
 
+*Note:* All events are prefixed with `telerivet::` to avoid collisions with internal events.
+
 ```js
-var EVENT_INCOMING_MESSAGE = 'incoming_message';
+var EVENT_INCOMING_MESSAGE = 'telerivet::incoming_message';
+var EVENT_MESSAGE_SENT = 'telerivet::sent';
 
 // parameters and event names are exactly the same as the documentation at https://telerivet.com/api/webhook
 webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
+	console.log(message.id);
+	console.log(message.type);
+});
+
+webhook.on(EVENT_MESSAGE_SENT, function(message) {
 	console.log(message.id);
 	console.log(message.type);
 });
@@ -86,7 +94,8 @@ var webhook = require('telerivet-webhook')({
 The above example works quite well but it would be difficult to track the message for which the Telerivet server sends the status notification. The below example shows how to handle this situation by using a custom webhook secret verifier.
 
 ```js
-var EVENT_INCOMING_MESSAGE = 'incoming_message';
+var EVENT_MESSAGE_DELIVERED = 'telerivet::delivered';
+var EVENT_INCOMING_MESSAGE = 'telerivet::incoming_message';
 var WEBHOOK_SECRET = '...'; // as setup in the telerivet dashboard
 var STATUS_URL = '...'; // public facing webhook url
 
@@ -132,8 +141,13 @@ var webhook = require('telerivet-webhook')({
 		});
 	}
 });
-```
 
+// you can now get to the internal message id
+webhook.on(EVENT_MESSAGE_DELIVERED, function(message) {
+	console.log(message.__id); // internal id
+	console.log(message.id); // telerivet id
+});
+```
 
 
 Testing

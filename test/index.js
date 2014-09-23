@@ -3,7 +3,7 @@
 'use strict';
 
 describe('#telerivet-webhook', function() {
-	var EVENT_INCOMING_MESSAGE = 'incoming_message';
+	var EVENT_INCOMING_MESSAGE = 'telerivet::incoming_message';
 	var SRC = require(__dirname + '/../src');
 
 	var chai = require('chai');
@@ -167,19 +167,19 @@ describe('#telerivet-webhook', function() {
 	describe('#message status notification', function() {
 		var ASSERTIONS = [
 			{
-				events: ['failed'],
+				events: ['telerivet::failed'],
 				number: '+15005550011'
 			},
 			{
-				events: ['sent', 'delivered'],
+				events: ['telerivet::sent', 'telerivet::delivered'],
 				number: '+15005550012'
 			},
 			{
-				events: ['sent', 'not_delivered'],
+				events: ['telerivet::sent', 'telerivet::not_delivered'],
 				number: '+15005550013'
 			},
 			{
-				events: ['failed_queued', 'sent'],
+				events: ['telerivet::failed_queued', 'telerivet::sent'],
 				number: '+15005550014'
 			}
 		];
