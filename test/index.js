@@ -164,10 +164,6 @@ describe('#telerivet-webhook', function() {
 			{
 				events: ['telerivet::failed_queued', 'telerivet::sent'],
 				number: '+15005550014'
-			},
-			{
-				events: ['telerivet::sent'],
-				number: '+15005550015'
 			}
 		];
 
@@ -204,14 +200,6 @@ describe('#telerivet-webhook', function() {
 					return events;
 				}, { 'telerivet::send_status': 0 });
 				var mockMessage = msg(assertion.number);
-				console.log('mockMessage: ');
-				console.log(mockMessage);
-
-				Object.defineProperty(mockMessage, "__id", {
-				  set : function(value) {
-				      throw new Error("SHIT!");
-				  }
-				})
 
 				webhook.on(lastEvent, function(message) {
 					// we purposefully set a timeout here to ensure events do not overflow into each other's tests
