@@ -9,6 +9,7 @@ describe('#telerivet-webhook', function() {
 	var chai = require('chai');
 	var uuid = require('uuid');
 	var nigah = require('nigah');
+	var prompt = require('prompt');
 	var expect = chai.expect;
 
 	// test configuration
@@ -111,7 +112,7 @@ describe('#telerivet-webhook', function() {
 
 		describe('#auto reply', function() {
 			var server;
-			var mockMessage = msg('+15005550012');
+			var mockMessage = msg('+15005550012', uuid.v4());
 			var webhook = SRC({
 				webhookSecret: webhookSecretFn,
 				// sends a reply to a fake number that returns sent
@@ -133,14 +134,31 @@ describe('#telerivet-webhook', function() {
 			it('should send the reply', function(done) {
 				console.info('Please send a simulated incoming message');
 
-				webhook.on(EVENT_INCOMING_MESSAGE, function() {
+				webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
 					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
+
+					/* Telerivet doesn't appear to send message notifications for test phone - ask tester for help */
+					console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of ' + message.from_number + ' for message: ' + mockMessage.content);
+					prompt.start();
+					prompt.get({
+						properties: {
+							passed: {
+								message: 'Did it work??? Type y or n',
+								pattern: /y|n/i,
+								required: true
+							}
+						}
+					}, function(err, result) {
+						expect(result.passed).to.equal('y');
+					});
 				});
 
+				/*
 				webhook.on('delivered', function(message) {
 					expect(message).to.have.property('__id', mockMessage.__id);
 					done();
 				});
+				*/
 			});
 		});
 	});
