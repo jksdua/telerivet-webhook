@@ -200,8 +200,9 @@ describe('#telerivet-webhook', function() {
 				var lastEvent = assertion.events[assertion.events.length - 1];
 				var expectedEvents = assertion.events.reduce(function(events, event) {
 					events[event] = 1;
+					events['telerivet::send_status'] += 1;
 					return events;
-				}, {});
+				}, { 'telerivet::send_status': 0 });
 				var mockMessage = msg(assertion.number);
 
 				webhook.on(lastEvent, function(message) {
