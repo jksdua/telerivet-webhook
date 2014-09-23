@@ -51,6 +51,7 @@ module.exports = function(opt) {
 	app.post('/', function(req, res){
 		var event = req.body.event;
 console.log('got request with event: ' + event);
+console.log(req.body);
 		if (webhookStringMatch) {
 			var secret = req.body.secret;
 
