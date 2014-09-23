@@ -1,4 +1,4 @@
-/* globals describe, beforeEach, afterEach, before, it */
+/* globals describe, beforeEach, afterEach, before, after, it */
 
 'use strict';
 
@@ -10,7 +10,6 @@ describe('#telerivet-webhook', function() {
 	var uuid = require('uuid');
 	var nigah = require('nigah');
 	var expect = chai.expect;
-	var watcher;
 
 	// test configuration
 	var conf = require(__dirname + '/config.json');
@@ -18,32 +17,6 @@ describe('#telerivet-webhook', function() {
 	var telerivet = require('telerivet');
 	var tr = new telerivet.API(conf.api_key, conf.api_url);
 	var project;
-
-	// extend telerivet with webhook and message notifications
-	var webhook = SRC({
-		// exact same as the readme example
-		webhookSecret: function(req, res, next) {
-			var secret = req.body.secret || '';
-			var event = req.body.event;
-
-			// message status notification
-			if (EVENT_INCOMING_MESSAGE !== event) {
-				var split = secret.split(':');
-				secret = split[0];
-				// add the server identifier on the message for convenience
-				req.body.__id = split[1];
-			}
-
-			// assert secret is correct
-			if (conf.webhook_secret === secret) {
-				next();
-			} else {
-				// send Forbidden
-				res.status(403).end();
-			}
-		}
-	});
-	webhook.listen();
 
 	function msg(number, message) {
 		var id = uuid.v4();
@@ -57,21 +30,33 @@ describe('#telerivet-webhook', function() {
 		};
 	}
 
+	function webhookSecretFn(req, res, next) {
+		var secret = req.body.secret || '';
+		var event = req.body.event;
+
+		// message status notification
+		if (EVENT_INCOMING_MESSAGE !== event) {
+			var split = secret.split(':');
+			secret = split[0];
+			// add the server identifier on the message for convenience
+			req.body.__id = split[1];
+		}
+
+		// assert secret is correct
+		if (conf.webhook_secret === secret) {
+			next();
+		} else {
+			// send Forbidden
+			res.status(403).end();
+		}
+	}
+
 	// fetch project from server
 	before(function(done) {
 		tr.getProjectById(conf.project_id, function(err, proj) {
 			project = proj;
 			done(err);
 		});
-	});
-
-	// watch for events on the event emitter
-	beforeEach(function() {
-		watcher = nigah(webhook);
-	});
-
-	afterEach(function() {
-		watcher.restore();
 	});
 
 	describe('#general', function() {
@@ -97,26 +82,61 @@ describe('#telerivet-webhook', function() {
 		this.timeout(Infinity);
 		console.info('Timeout disabled for incoming message tests');
 
-		it('should emit an event', function(done) {
-			console.info('Please send a simulated incoming message');
+		describe('#events', function() {
+			var server, watcher;
+			// extend telerivet with webhook and message notifications
+			var webhook = SRC({
+				// exact same as the readme example
+				webhookSecret: conf.webhook_secret
+			});
 
-			webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
-				console.info('Received simulated message. Proceeding with test');
-				expect(message).to.have.property('id').that.is.a('string');
-				done();
+			before(function(done) {
+				server = webhook.listen(conf.port, conf.host, done);
+			});
+
+			after(function(done) {
+				server.close(done);
+			});
+
+			// watch for events on the event emitter
+			beforeEach(function() {
+				watcher = nigah(webhook);
+			});
+
+			afterEach(function() {
+				watcher.restore();
+			});
+
+			it('should emit an event', function(done) {
+				console.info('Please send a simulated incoming message');
+
+				webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
+					console.info('Received simulated message. Proceeding with test');
+					expect(message).to.have.property('id').that.is.a('string');
+					done();
+				});
 			});
 		});
 
 		describe('#auto reply', function() {
+			var server, watcher;
 			var mockMessage = msg('+15005550015');
 			var webhook = SRC({
-				webhookSecret: conf.webhook_secret,
+				webhookSecret: webhookSecretFn,
 				// sends a reply to a fake number that returns sent
 				autoReply: function(req, res) {
 					res.json({
 						messages: [mockMessage]
 					});
 				}
+			});
+
+			before(function(done) {
+				server = webhook.listen(conf.port, conf.host, done);
+			});
+
+			after(function(done) {
+				server.close(done);
 			});
 
 			// watch for events on the event emitter
@@ -166,6 +186,30 @@ describe('#telerivet-webhook', function() {
 				number: '+15005550015'
 			}
 		];
+
+		var server, watcher;
+		// extend telerivet with webhook and message notifications
+		var webhook = SRC({
+			// exact same as the readme example
+			webhookSecret: webhookSecretFn
+		});
+
+		before(function(done) {
+			server = webhook.listen(conf.port, conf.host, done);
+		});
+
+		after(function(done) {
+			server.close(done);
+		});
+
+		// watch for events on the event emitter
+		beforeEach(function() {
+			watcher = nigah(webhook);
+		});
+
+		afterEach(function() {
+			watcher.restore();
+		});
 
 		ASSERTIONS.forEach(function(assertion) {
 			it('should emit events: ' + assertion.events, function(done) {
