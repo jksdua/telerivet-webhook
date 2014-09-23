@@ -138,7 +138,7 @@ describe('#telerivet-webhook', function() {
 					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
 
 					/* Telerivet doesn't appear to send message notifications for test phone - ask tester for help */
-					console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of ' + message.from_number + ' for message: ' + mockMessage.content);
+					console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of ' + message.to_number + ' for message: ' + mockMessage.content);
 					prompt.start();
 					prompt.get({
 						properties: {
@@ -150,6 +150,7 @@ describe('#telerivet-webhook', function() {
 						}
 					}, function(err, result) {
 						expect(result.passed).to.equal('y');
+						done();
 					});
 				});
 
