@@ -101,7 +101,7 @@ describe('#telerivet-webhook', function() {
 			});
 
 			it('should emit an event', function(done) {
-				console.info('Please send a simulated incoming message');
+				console.info('Please send a simulated incoming message from https://telerivet.com/p/fccbbed0/services. Click on "Test Services"');
 
 				webhook.on(EVENT_INCOMING_MESSAGE, function(message) {
 					console.info('Received simulated message. Proceeding with test');
@@ -133,7 +133,7 @@ describe('#telerivet-webhook', function() {
 			});
 
 			it('should send the reply', function(done) {
-				console.info('Please send a simulated incoming message');
+				console.info('Please send a simulated incoming message from https://telerivet.com/p/fccbbed0/services. Click on "Test Services"');
 
 				webhook.on(EVENT_INCOMING_MESSAGE, function() {
 					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
@@ -166,7 +166,7 @@ describe('#telerivet-webhook', function() {
 				number: '+15005550014'
 			},
 			{
-				events: ['telerivet::failed_queued', 'telerivet::sent'],
+				events: ['telerivet::sent'],
 				number: '+15005550015'
 			}
 		];
