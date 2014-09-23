@@ -137,25 +137,9 @@ describe('#telerivet-webhook', function() {
 
 				webhook.on(EVENT_INCOMING_MESSAGE, function() {
 					console.info('Received simulated message. Auto reply will be sent to a test number. Waiting for sent message notification');
-
-					/* Telerivet doesn't appear to send message notifications for test phone - ask tester for help */
-					/*console.info('Cannot automatically validate if the auto reply was sent. Please check the message history of +15005550012 for message: ' + mockMessage.content);
-					prompt.start();
-					prompt.get({
-						properties: {
-							passed: {
-								message: 'Did it work??? Type y or n',
-								pattern: /y|n/i,
-								required: true
-							}
-						}
-					}, function(err, result) {
-						expect(result.passed).to.equal('y');
-						done();
-					});*/
 				});
 
-				webhook.on('telerivet::delivered', function(message) {
+				webhook.on('telerivet::sent', function(message) {
 					expect(message).to.have.property('__id', mockMessage.__id);
 					done();
 				});
@@ -219,7 +203,6 @@ describe('#telerivet-webhook', function() {
 					return events;
 				}, {});
 				var mockMessage = msg(assertion.number);
-				console.log(mockMessage);
 
 				webhook.on(lastEvent, function(message) {
 					expect(message).to.have.property('id').that.is.a('string');
