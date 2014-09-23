@@ -1,0 +1,30 @@
+{
+  "name": "telerivet-webhook",
+  "version": "0.0.1",
+  "description": "Node.js webhook for the Telerivet SMS gateway service",
+  "main": "./src",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --bail --timeout 10000 --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jksdua/telerivet-webhook.git"
+  },
+  "author": "Jaap Karan Singh <jksdua@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.8.3",
+    "express": "^4.9.4"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "jshint": "^2.5.6",
+    "mocha": "^1.21.4",
+    "nigah": "0.0.2",
+    "precommit-hook": "^1.0.7",
+    "telerivet": "git+ssh://git@github.com:jksdua/telerivet-node-client#7e32855f0c962c0d059e395b05f39e3a23526d8f"
+  }
+}

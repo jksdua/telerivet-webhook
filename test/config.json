@@ -1,0 +1,10 @@
+{
+	"credentials": {
+		"email": "test@boun.cr",
+		"password": "cxKDnq8UV7ZWjGaDc@xesx3AANzv7jWY*TWk7AbV789j!7vw"
+	},
+	"api_key": "ynqSBJ5gCcP9YsDK4mMXW4qFTtOHgoad",
+	"api_url": "https://api.telerivet.com:443/v1",
+	"project_id": "PJfccbbed081efd8b3",
+	"webhook_secret": "998E245F034D7E5C10948B05A8E8E632F9442A0B6636D713E6AAED9E9146C56A2D6BB938233C2B0ED8B610B9EC286EA4B583BF4271A8A7B70EB47E7276E238A9"
+}
