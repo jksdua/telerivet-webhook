@@ -206,11 +206,14 @@ describe('#telerivet-webhook', function() {
 				var mockMessage = msg(assertion.number);
 
 				webhook.on(lastEvent, function(message) {
-					expect(message).to.have.property('id').that.is.a('string');
-					expect(message).to.have.property('message_type', 'sms');
-					expect(message).to.have.property('__id', mockMessage.__id);
-					watcher.assertCount(expectedEvents, true);
-					done();
+					// we purposefully set a timeout here to ensure events do not overflow into each other's tests
+					setTimeout(function() {
+						expect(message).to.have.property('id').that.is.a('string');
+						expect(message).to.have.property('message_type', 'sms');
+						expect(message).to.have.property('__id', mockMessage.__id);
+						watcher.assertCount(expectedEvents, true);
+						done();
+					}, 5000);
 				});
 
 				project.sendMessage(mockMessage, function(err) {
