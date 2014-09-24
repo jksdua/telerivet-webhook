@@ -28,9 +28,9 @@ var webhook = require('telerivet-webhook')({
 
 ### Listen for events
 
-*Note:* All events are prefixed with `telerivet::` to avoid collisions with internal events.
+**Note:** All events are prefixed with `telerivet::` to avoid collisions with internal events.
 
-Additional to the API, *status* of the message is also emitted as an event. So, messages will also emit *sent*, *delivered*, *failed* etc.
+Additional to the `incoming_message` and `send_status` events, status of the message is also emitted as an event. So, messages will also emit `sent`, `delivered`, `failed` etc.
 
 ```js
 var EVENT_INCOMING_MESSAGE = 'telerivet::incoming_message';
@@ -98,6 +98,8 @@ var webhook = require('telerivet-webhook')({
 });
 ```
 
+### Unique webhook secret for each message
+
 The above example works quite well but it would be difficult to track the message for which the Telerivet server sends the status notification. The below example shows how to handle this situation by using a custom webhook secret verifier.
 
 ```js
@@ -153,6 +155,31 @@ var webhook = require('telerivet-webhook')({
 webhook.on(EVENT_MESSAGE_DELIVERED, function(message) {
 	console.log(message.__id); // internal id
 	console.log(message.id); // telerivet id
+});
+```
+
+#### Telerivet API
+
+You can use the custom webhook secret verifier with the Telerivet REST API. An example is shown below:
+
+```js
+var uuid = require('uuid');
+var assert = require('assert');
+var telerivet = require('telerivet');
+var tr = new telerivet.API(<api_key>);
+
+tr.getProjectById(<id>, function(err, project) {
+	assert.ifError(err);
+
+	//unique message id
+	var messageId = WEBHOOK_SECRET + ':' + uuid.v4();
+
+	project.sendMessage({
+		to_number: '555-1212',
+		content: '...'
+		status_url: STATUS_URL,
+		status_secret: messageId
+	});
 });
 ```
 
